@@ -30,6 +30,9 @@ const timeSlots = [
   '2:00 PM', '2:30 PM', '3:00 PM', '3:30 PM', '4:00 PM', '4:30 PM',
 ]
 
+const N8N_BOOKING_POST_WEBHOOK_PRODUCTION_URL =
+  'http://34.60.172.142.sslip.io/webhook/352af969-5636-4752-acc8-a8d3c9b43268'
+
 /** Converts UI label time (e.g. "2:30 PM") to 24h "HH:mm". */
 function normalizeTimeTo24Hour(time12h: string): string {
   const m = time12h.trim().match(/^(\d{1,2}):(\d{2})\s*(AM|PM)$/i)
@@ -125,7 +128,20 @@ export function AppointmentModal({ open, onOpenChange }: AppointmentModalProps) 
     setSubmitError(null)
 
     try {
-      const response = await fetch('http://34.60.172.142.sslip.io/webhook/352af969-5636-4752-acc8-a8d3c9b43268', {
+      const envWebhookUrl = process.env.NEXT_PUBLIC_N8N_BOOKING_POST_WEBHOOK_URL?.trim()
+      const envUrlUsesLocalhost =
+        Boolean(envWebhookUrl) &&
+        (envWebhookUrl.includes('localhost') ||
+          envWebhookUrl.includes('127.0.0.1') ||
+          envWebhookUrl.includes('0.0.0.0'))
+      const submitWebhookUrl =
+        envWebhookUrl && !envUrlUsesLocalhost
+          ? envWebhookUrl
+          : N8N_BOOKING_POST_WEBHOOK_PRODUCTION_URL
+
+      console.log('[booking-submit] POST URL:', submitWebhookUrl)
+
+      const response = await fetch(submitWebhookUrl, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -140,6 +156,22 @@ export function AppointmentModal({ open, onOpenChange }: AppointmentModalProps) 
           phone: formData.phone,
         }),
       })
+
+      console.log('[booking-submit] response status:', response.status, response.statusText)
+
+      const rawResponseText = await response.text()
+      const responseContentType = response.headers.get('content-type') ?? ''
+
+      if (responseContentType.includes('application/json')) {
+        try {
+          const parsedJson = rawResponseText ? JSON.parse(rawResponseText) : null
+          console.log('[booking-submit] response json:', parsedJson)
+        } catch {
+          console.log('[booking-submit] response text (invalid json):', rawResponseText)
+        }
+      } else {
+        console.log('[booking-submit] response text:', rawResponseText)
+      }
 
       if (!response.ok) {
         throw new Error('Failed to submit booking')
