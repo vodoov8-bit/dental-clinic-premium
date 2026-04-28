@@ -1,0 +1,267 @@
+@import 'tailwindcss';
+@import 'tw-animate-css';
+
+@custom-variant dark (&:is(.dark *));
+
+/* Lumina Dental Studio - Premium Design System */
+
+:root {
+  /* Primary Brand Colors - Cream, Dark Blue-Grey, Sage Green */
+  --background: oklch(0.98 0.005 90); /* Cream #F9F9F8 */
+  --foreground: oklch(0.25 0.02 220); /* Dark Blue-Grey #1A2E35 */
+  
+  /* Card & Surface Colors */
+  --card: oklch(0.98 0.005 90);
+  --card-foreground: oklch(0.25 0.02 220);
+  
+  /* Popover Colors */
+  --popover: oklch(0.98 0.005 90);
+  --popover-foreground: oklch(0.25 0.02 220);
+  
+  /* Primary Action - Sage Green */
+  --primary: oklch(0.60 0.05 145); /* Sage Green #7C9082 */
+  --primary-foreground: oklch(0.98 0.005 90);
+  
+  /* Secondary Colors - Dark Blue-Grey */
+  --secondary: oklch(0.25 0.02 220);
+  --secondary-foreground: oklch(0.98 0.005 90);
+  
+  /* Muted/Neutral Colors */
+  --muted: oklch(0.92 0.01 220);
+  --muted-foreground: oklch(0.45 0.02 220);
+  
+  /* Accent - Soft Sage */
+  --accent: oklch(0.70 0.04 145);
+  --accent-foreground: oklch(0.25 0.02 220);
+  
+  /* Destructive - Red for alerts */
+  --destructive: oklch(0.60 0.20 25);
+  --destructive-foreground: oklch(0.98 0.005 90);
+  
+  /* Borders & Inputs */
+  --border: oklch(0.88 0.01 220);
+  --input: oklch(0.88 0.01 220);
+  --ring: oklch(0.60 0.05 145);
+  
+  /* Radius - 16px for premium rounded corners */
+  --radius: 1rem;
+  
+  /* Chart colors */
+  --chart-1: oklch(0.60 0.05 145);
+  --chart-2: oklch(0.70 0.04 145);
+  --chart-3: oklch(0.25 0.02 220);
+  --chart-4: oklch(0.45 0.02 220);
+  --chart-5: oklch(0.88 0.01 220);
+}
+
+@theme inline {
+  --font-sans: 'Geist', 'Geist Fallback', system-ui, sans-serif;
+  --font-mono: 'Geist Mono', 'Geist Mono Fallback', monospace;
+  --color-background: var(--background);
+  --color-foreground: var(--foreground);
+  --color-card: var(--card);
+  --color-card-foreground: var(--card-foreground);
+  --color-popover: var(--popover);
+  --color-popover-foreground: var(--popover-foreground);
+  --color-primary: var(--primary);
+  --color-primary-foreground: var(--primary-foreground);
+  --color-secondary: var(--secondary);
+  --color-secondary-foreground: var(--secondary-foreground);
+  --color-muted: var(--muted);
+  --color-muted-foreground: var(--muted-foreground);
+  --color-accent: var(--accent);
+  --color-accent-foreground: var(--accent-foreground);
+  --color-destructive: var(--destructive);
+  --color-destructive-foreground: var(--destructive-foreground);
+  --color-border: var(--border);
+  --color-input: var(--input);
+  --color-ring: var(--ring);
+  --color-chart-1: var(--chart-1);
+  --color-chart-2: var(--chart-2);
+  --color-chart-3: var(--chart-3);
+  --color-chart-4: var(--chart-4);
+  --color-chart-5: var(--chart-5);
+  --radius-sm: calc(var(--radius) - 4px);
+  --radius-md: calc(var(--radius) - 2px);
+  --radius-lg: var(--radius);
+  --radius-xl: calc(var(--radius) + 4px);
+}
+
+@layer base {
+  * {
+    @apply border-border outline-ring/50;
+  }
+  body {
+    @apply bg-background text-foreground antialiased;
+  }
+}
+
+/* Section container utility */
+@layer components {
+  .section-container {
+    @apply mx-auto w-full max-w-7xl px-4 sm:px-6 lg:px-8;
+  }
+  
+  .section-padding {
+    @apply py-16 md:py-24 lg:py-32;
+  }
+
+  .section-eyebrow {
+    @apply inline-block rounded-full border border-border/60 bg-background/60 px-4 py-2 text-sm font-medium shadow-[0_10px_26px_-24px_rgba(26,46,53,0.22)] backdrop-blur-sm;
+  }
+
+  .section-title {
+    @apply text-3xl font-semibold tracking-tight leading-[1.08] text-balance sm:text-4xl lg:text-5xl;
+  }
+
+  .section-description {
+    @apply text-lg leading-relaxed text-muted-foreground/90;
+  }
+
+  .icon-container {
+    @apply inline-flex size-12 items-center justify-center rounded-xl bg-primary/10 text-primary;
+  }
+
+  .icon-container-lg {
+    @apply inline-flex size-14 items-center justify-center rounded-2xl bg-primary/10 text-primary;
+  }
+
+  .cta-button {
+    @apply h-12 rounded-full px-8 text-base;
+  }
+}
+
+/* Smooth scroll behavior */
+html {
+  scroll-behavior: smooth;
+}
+
+/* Custom animations */
+@keyframes fade-in-up {
+  from {
+    opacity: 0;
+    transform: translate3d(0, 14px, 0);
+  }
+  to {
+    opacity: 1;
+    transform: translate3d(0, 0, 0);
+  }
+}
+
+@keyframes fade-in {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+
+@keyframes scale-in {
+  from {
+    opacity: 0;
+    transform: scale(0.95);
+  }
+  to {
+    opacity: 1;
+    transform: scale(1);
+  }
+}
+
+.animate-fade-in-up {
+  animation: fade-in-up 0.55s ease-out forwards;
+  will-change: transform, opacity;
+}
+
+.animate-fade-in {
+  animation: fade-in 0.5s ease-out forwards;
+}
+
+.animate-scale-in {
+  animation: scale-in 0.5s ease-out forwards;
+}
+
+/* Stagger delays for list items */
+.stagger-1 { animation-delay: 0.1s; }
+.stagger-2 { animation-delay: 0.2s; }
+.stagger-3 { animation-delay: 0.3s; }
+.stagger-4 { animation-delay: 0.4s; }
+.stagger-5 { animation-delay: 0.5s; }
+.stagger-6 { animation-delay: 0.6s; }
+
+/* Focus visible styles */
+:focus-visible {
+  @apply outline-2 outline-offset-2 outline-primary;
+}
+
+/* Selection color */
+::selection {
+  @apply bg-primary/20 text-foreground;
+}
+
+/* Hero background floating animations */
+@keyframes float-slow {
+  0%, 100% {
+    transform: translate(0, 0) scale(1);
+  }
+  33% {
+    transform: translate(30px, -30px) scale(1.05);
+  }
+  66% {
+    transform: translate(-20px, 20px) scale(0.95);
+  }
+}
+
+@keyframes float-slower {
+  0%, 100% {
+    transform: translate(0, 0) scale(1);
+  }
+  50% {
+    transform: translate(-40px, -20px) scale(1.1);
+  }
+}
+
+@keyframes float-medium {
+  0%, 100% {
+    transform: translate(0, 0);
+  }
+  25% {
+    transform: translate(20px, -10px);
+  }
+  50% {
+    transform: translate(-10px, 20px);
+  }
+  75% {
+    transform: translate(-20px, -15px);
+  }
+}
+
+.animate-float-slow {
+  animation: float-slow 20s ease-in-out infinite;
+}
+
+.animate-float-slower {
+  animation: float-slower 25s ease-in-out infinite;
+}
+
+.animate-float-medium {
+  animation: float-medium 15s ease-in-out infinite;
+}
+
+/* Respect reduced motion preferences */
+@media (prefers-reduced-motion: reduce) {
+  .animate-fade-in-up,
+  .animate-fade-in,
+  .animate-scale-in {
+    animation: none !important;
+    opacity: 1 !important;
+    transform: none !important;
+  }
+
+  .animate-float-slow,
+  .animate-float-slower,
+  .animate-float-medium,
+  .animate-pulse {
+    animation: none !important;
+  }
+}
