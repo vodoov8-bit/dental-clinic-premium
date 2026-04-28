@@ -105,7 +105,7 @@ export function AppointmentModal({ open, onOpenChange }: AppointmentModalProps) 
     setSubmitError(null)
 
     try {
-      const response = await fetch('http://34.60.172.142.sslip.io/webhook/2dfa3e0a-181d-49ca-9e14-318bb4a4debf', {
+      const response = await fetch('http://34.60.172.142.sslip.io/webhook/352af969-5636-4752-acc8-a8d3c9b43268', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -162,7 +162,7 @@ export function AppointmentModal({ open, onOpenChange }: AppointmentModalProps) 
 
     const fetchBookedSlots = async () => {
       try {
-        const response = await fetch('http://34.60.172.142.sslip.io/webhook/341f2b8c-8e90-44b6-a90a-47b8a7dccea9', {
+        const response = await fetch('http://34.60.172.142.sslip.io/webhook/59e14cb9-4216-4f0e-afdf-bc9755f43810', {
           method: 'GET',
         })
 
