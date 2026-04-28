@@ -31,7 +31,7 @@ const timeSlots = [
 ]
 
 const N8N_BOOKING_POST_WEBHOOK_PRODUCTION_URL =
-  'http://34.60.172.142.sslip.io/webhook/352af969-5636-4752-acc8-a8d3c9b43268'
+  'https://34.60.172.142.sslip.io/webhook/352af969-5636-4752-acc8-a8d3c9b43268'
 
 /** Converts UI label time (e.g. "2:30 PM") to 24h "HH:mm". */
 function normalizeTimeTo24Hour(time12h: string): string {
@@ -214,7 +214,7 @@ export function AppointmentModal({ open, onOpenChange }: AppointmentModalProps) 
 
     const fetchBookedSlots = async () => {
       try {
-        const response = await fetch('http://34.60.172.142.sslip.io/webhook/59e14cb9-4216-4f0e-afdf-bc9755f43810', {
+        const response = await fetch('https://34.60.172.142.sslip.io/webhook/59e14cb9-4216-4f0e-afdf-bc9755f43810', {
           method: 'GET',
         })
 
