@@ -58,6 +58,26 @@ function normalizeBookedSlotKey(slot: string): string | null {
   return `${normalizedDate}|${normalizedTime}`
 }
 
+function extractBookedSlotsFromResponse(data: unknown): string[] {
+  if (Array.isArray(data)) {
+    return data.filter((slot): slot is string => typeof slot === 'string')
+  }
+
+  if (data && typeof data === 'object') {
+    const record = data as Record<string, unknown>
+
+    if (Array.isArray(record.bookedSlots)) {
+      return record.bookedSlots.filter((slot): slot is string => typeof slot === 'string')
+    }
+
+    if (Array.isArray(record.slots)) {
+      return record.slots.filter((slot): slot is string => typeof slot === 'string')
+    }
+  }
+
+  return []
+}
+
 interface AppointmentModalProps {
   open: boolean
   onOpenChange: (open: boolean) => void
@@ -170,20 +190,15 @@ export function AppointmentModal({ open, onOpenChange }: AppointmentModalProps) 
         if (!response.ok) return
 
         const data = await response.json()
+        console.log('fetched booked-slots payload:', data)
         if (isCancelled) return
 
-        if (Array.isArray(data?.bookedSlots)) {
-          const normalizedSlots = data.bookedSlots
-            .filter((slot: unknown): slot is string => typeof slot === 'string')
-            .map(normalizeBookedSlotKey)
-            .filter((slot): slot is string => Boolean(slot))
+        const normalizedSlots = extractBookedSlotsFromResponse(data)
+          .map(normalizeBookedSlotKey)
+          .filter((slot): slot is string => Boolean(slot))
 
-          console.log('bookedSlots:', normalizedSlots)
-          setBookedSlots(normalizedSlots)
-        } else {
-          console.log('bookedSlots:', [])
-          setBookedSlots([])
-        }
+        console.log('bookedSlots:', normalizedSlots)
+        setBookedSlots(normalizedSlots)
       } catch {
         if (!isCancelled) {
           setBookedSlots([])
@@ -324,7 +339,7 @@ export function AppointmentModal({ open, onOpenChange }: AppointmentModalProps) 
                       const slotKey = selectedDate
                         ? `${format(selectedDate, 'yyyy-MM-dd')}|${normalizeTimeTo24Hour(time)}`
                         : ''
-                      const isBooked = selectedDate ? bookedSlots.includes(slotKey) : false
+                      const isBooked = selectedDate ? bookedSlotsSet.has(slotKey) : false
 
                       return (
                         <button
