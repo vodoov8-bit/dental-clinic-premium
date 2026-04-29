@@ -100,6 +100,7 @@ export function AppointmentModal({ open, onOpenChange }: AppointmentModalProps) 
   const [selectedTime, setSelectedTime] = useState<string | null>(null)
   const [bookedSlots, setBookedSlots] = useState<string[]>([])
   const [submitError, setSubmitError] = useState<string | null>(null)
+  const [isSubmitting, setIsSubmitting] = useState(false)
   const [confirmationDetails, setConfirmationDetails] = useState<{
     doctorName: string
     date: string
@@ -137,9 +138,10 @@ export function AppointmentModal({ open, onOpenChange }: AppointmentModalProps) 
   }
 
   const handleSubmit = async () => {
-    if (!selectedService || !selectedDoctor || !selectedDate || !selectedTime) return
+    if (!selectedService || !selectedDoctor || !selectedDate || !selectedTime || isSubmitting) return
 
     setSubmitError(null)
+    setIsSubmitting(true)
 
     try {
       const envWebhookUrl = process.env.NEXT_PUBLIC_N8N_BOOKING_POST_WEBHOOK_URL?.trim()
@@ -205,6 +207,8 @@ export function AppointmentModal({ open, onOpenChange }: AppointmentModalProps) 
       setSelectedTime(null)
     } catch {
       setSubmitError('Something went wrong. Please try again.')
+    } finally {
+      setIsSubmitting(false)
     }
   }
 
@@ -285,7 +289,7 @@ export function AppointmentModal({ open, onOpenChange }: AppointmentModalProps) 
 
   return (
     <Dialog open={open} onOpenChange={handleDialogOpenChange}>
-      <DialogContent className="w-[calc(100vw-1rem)] max-w-[600px] p-0 overflow-hidden max-h-[90vh] flex flex-col sm:w-full">
+      <DialogContent className="w-[calc(100vw-1rem)] max-w-[600px] p-0 overflow-hidden sm:w-full">
         {/* Progress Bar */}
         {step < 5 && (
           <div className="flex gap-1 p-4 pb-0">
@@ -303,14 +307,14 @@ export function AppointmentModal({ open, onOpenChange }: AppointmentModalProps) 
 
         {/* Step 1: Select Service */}
         {step === 1 && (
-          <div className="flex min-h-0 flex-1 flex-col overflow-x-hidden">
+          <div>
             <DialogHeader className="px-4 pt-6 sm:px-6 mb-6">
               <DialogTitle className="text-2xl">Select a Service</DialogTitle>
               <DialogDescription>
                 Choose the service you would like to book
               </DialogDescription>
             </DialogHeader>
-            <div className="flex-1 space-y-3 overflow-y-auto overflow-x-hidden px-4 sm:px-6">
+            <div className="space-y-3 px-4 sm:px-6">
               {services.map((service) => (
                 <button
                   key={service.id}
@@ -343,7 +347,7 @@ export function AppointmentModal({ open, onOpenChange }: AppointmentModalProps) 
                 </button>
               ))}
             </div>
-            <div className="sticky bottom-0 mt-4 flex justify-end border-t bg-background px-4 py-4 sm:px-6">
+            <div className="mt-4 flex justify-end border-t bg-background px-4 py-4 sm:px-6">
               <Button
                 onClick={() => setStep(2)}
                 disabled={!canProceedStep1}
@@ -358,14 +362,14 @@ export function AppointmentModal({ open, onOpenChange }: AppointmentModalProps) 
 
         {/* Step 2: Select Doctor */}
         {step === 2 && (
-          <div className="flex min-h-0 flex-1 flex-col overflow-x-hidden">
+          <div>
             <DialogHeader className="px-4 pt-6 sm:px-6 mb-6">
               <DialogTitle className="text-2xl">Select a Doctor</DialogTitle>
               <DialogDescription>
                 Choose your preferred doctor
               </DialogDescription>
             </DialogHeader>
-            <div className="flex-1 space-y-3 overflow-y-auto overflow-x-hidden px-4 sm:px-6">
+            <div className="space-y-3 px-4 sm:px-6">
               {doctors.map((doctor) => (
                 <button
                   key={doctor.id}
@@ -393,7 +397,7 @@ export function AppointmentModal({ open, onOpenChange }: AppointmentModalProps) 
                 </button>
               ))}
             </div>
-            <div className="sticky bottom-0 mt-4 flex justify-between border-t bg-background px-4 py-4 sm:px-6">
+            <div className="mt-4 flex justify-between border-t bg-background px-4 py-4 sm:px-6">
               <Button
                 variant="ghost"
                 onClick={() => setStep(1)}
@@ -416,14 +420,14 @@ export function AppointmentModal({ open, onOpenChange }: AppointmentModalProps) 
 
         {/* Step 3: Select Date & Time */}
         {step === 3 && (
-          <div className="flex min-h-0 flex-1 flex-col overflow-x-hidden">
+          <div>
             <DialogHeader className="px-4 pt-6 sm:px-6 mb-6">
               <DialogTitle className="text-2xl">Choose Date & Time</DialogTitle>
               <DialogDescription>
                 Select your preferred appointment slot
               </DialogDescription>
             </DialogHeader>
-            <div className="flex-1 overflow-y-auto overflow-x-hidden px-4 sm:px-6">
+            <div className="px-4 sm:px-6">
               <div className="grid grid-cols-1 gap-6 md:grid-cols-2 min-w-0">
               {/* Calendar */}
               <div className="border rounded-xl p-3 min-w-0 overflow-x-auto">
@@ -483,7 +487,7 @@ export function AppointmentModal({ open, onOpenChange }: AppointmentModalProps) 
               </div>
             </div>
             </div>
-            <div className="sticky bottom-0 mt-4 flex justify-between border-t bg-background px-4 py-4 sm:px-6">
+            <div className="mt-4 flex justify-between border-t bg-background px-4 py-4 sm:px-6">
               <Button
                 variant="ghost"
                 onClick={() => setStep(2)}
@@ -506,14 +510,14 @@ export function AppointmentModal({ open, onOpenChange }: AppointmentModalProps) 
 
         {/* Step 4: Contact Information */}
         {step === 4 && (
-          <div className="flex min-h-0 flex-1 flex-col overflow-x-hidden">
+          <div>
             <DialogHeader className="px-4 pt-6 sm:px-6 mb-6">
               <DialogTitle className="text-2xl">Your Information</DialogTitle>
               <DialogDescription>
                 Please provide your contact details
               </DialogDescription>
             </DialogHeader>
-            <div className="flex-1 space-y-4 overflow-y-auto overflow-x-hidden px-4 sm:px-6">
+            <div className="space-y-4 px-4 sm:px-6">
               <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
                 <div className="space-y-2">
                   <Label htmlFor="firstName">First Name</Label>
@@ -589,7 +593,7 @@ export function AppointmentModal({ open, onOpenChange }: AppointmentModalProps) 
                 <p className="text-sm text-destructive">{submitError}</p>
               </div>
             )}
-            <div className="sticky bottom-0 mt-4 flex justify-between border-t bg-background px-4 py-4 sm:px-6">
+            <div className="mt-4 flex justify-between border-t bg-background px-4 py-4 sm:px-6">
               <Button
                 variant="ghost"
                 onClick={() => setStep(3)}
@@ -600,10 +604,10 @@ export function AppointmentModal({ open, onOpenChange }: AppointmentModalProps) 
               </Button>
               <Button
                 onClick={handleSubmit}
-                disabled={!canProceedStep4}
+                disabled={!canProceedStep4 || isSubmitting}
                 className="rounded-full px-6"
               >
-                Confirm Booking
+                {isSubmitting ? 'Confirming...' : 'Confirm Booking'}
               </Button>
             </div>
           </div>
