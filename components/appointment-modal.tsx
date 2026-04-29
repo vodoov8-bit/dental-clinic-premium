@@ -51,20 +51,24 @@ function normalizeTimeTo24Hour(time12h: string): string {
   return `${String(h).padStart(2, '0')}:${minutes}`
 }
 
-function createSlotKey(date: Date, time: string): string {
-  return `${format(date, 'yyyy-MM-dd')}|${normalizeTimeTo24Hour(time)}`
+function createSlotKey(doctorName: string, date: Date, time: string): string {
+  return `${doctorName}|${format(date, 'yyyy-MM-dd')}|${normalizeTimeTo24Hour(time)}`
 }
 
-/** Normalizes server slot keys to canonical "yyyy-MM-dd|HH:mm". */
+/** Normalizes server slot keys to canonical "doctorName|yyyy-MM-dd|HH:mm". */
 function normalizeBookedSlotKey(slot: string): string | null {
-  const [datePart, timePart] = slot.split('|')
-  if (!datePart || !timePart) return null
+  const parts = slot.split('|')
+  if (parts.length < 3) return null
 
+  const [doctorNamePart, datePart, timePart] = parts
+  if (!doctorNamePart || !datePart || !timePart) return null
+
+  const normalizedDoctorName = doctorNamePart.trim()
   const normalizedDate = datePart.trim()
   const normalizedTime = normalizeTimeTo24Hour(timePart.trim().toUpperCase())
 
-  if (!normalizedDate || !normalizedTime) return null
-  return `${normalizedDate}|${normalizedTime}`
+  if (!normalizedDoctorName || !normalizedDate || !normalizedTime) return null
+  return `${normalizedDoctorName}|${normalizedDate}|${normalizedTime}`
 }
 
 function extractBookedSlotsFromResponse(data: unknown): string[] {
@@ -216,15 +220,19 @@ export function AppointmentModal({ open, onOpenChange }: AppointmentModalProps) 
     () => new Set(bookedSlots.map(normalizeBookedSlotKey).filter((slot): slot is string => Boolean(slot))),
     [bookedSlots]
   )
+  const selectedDoctorName = useMemo(
+    () => (selectedDoctor ? (doctors.find((d) => d.id === selectedDoctor)?.name ?? selectedDoctor) : null),
+    [selectedDoctor]
+  )
 
   const handleSelectTimeSlot = useCallback(
     (time: string) => {
-      if (!selectedDate) return
-      const slotKey = createSlotKey(selectedDate, time)
+      if (!selectedDoctorName || !selectedDate) return
+      const slotKey = createSlotKey(selectedDoctorName, selectedDate, time)
       if (bookedSlotsSet.has(slotKey)) return
       setSelectedTime(time)
     },
-    [bookedSlotsSet, selectedDate]
+    [bookedSlotsSet, selectedDate, selectedDoctorName]
   )
 
   const handleContinueFromDateTime = useCallback(() => {
@@ -271,8 +279,8 @@ export function AppointmentModal({ open, onOpenChange }: AppointmentModalProps) 
   }, [open, step])
 
   const selectedSlotKey =
-    selectedDate && selectedTime
-      ? createSlotKey(selectedDate, selectedTime)
+    selectedDoctorName && selectedDate && selectedTime
+      ? createSlotKey(selectedDoctorName, selectedDate, selectedTime)
       : null
   const selectedSlotIsBooked = selectedSlotKey ? bookedSlotsSet.has(selectedSlotKey) : false
 
@@ -453,7 +461,9 @@ export function AppointmentModal({ open, onOpenChange }: AppointmentModalProps) 
                   {timeSlots.map((time) => (
                     (() => {
                       const slotKey = selectedDate
-                        ? `${format(selectedDate, 'yyyy-MM-dd')}|${normalizeTimeTo24Hour(time)}`
+                        ? selectedDoctorName
+                          ? `${selectedDoctorName}|${format(selectedDate, 'yyyy-MM-dd')}|${normalizeTimeTo24Hour(time)}`
+                          : ''
                         : ''
                       const isBooked = selectedDate ? bookedSlotsSet.has(slotKey) : false
 
