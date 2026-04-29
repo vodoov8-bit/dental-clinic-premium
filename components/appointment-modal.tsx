@@ -100,6 +100,11 @@ export function AppointmentModal({ open, onOpenChange }: AppointmentModalProps) 
   const [selectedTime, setSelectedTime] = useState<string | null>(null)
   const [bookedSlots, setBookedSlots] = useState<string[]>([])
   const [submitError, setSubmitError] = useState<string | null>(null)
+  const [confirmationDetails, setConfirmationDetails] = useState<{
+    doctorName: string
+    date: string
+    time: string
+  } | null>(null)
   const [formData, setFormData] = useState({
     firstName: '',
     lastName: '',
@@ -113,6 +118,7 @@ export function AppointmentModal({ open, onOpenChange }: AppointmentModalProps) 
     setSelectedDoctor(null)
     setSelectedDate(undefined)
     setSelectedTime(null)
+    setConfirmationDetails(null)
     setFormData({ firstName: '', lastName: '', email: '', phone: '' })
   }
 
@@ -186,6 +192,11 @@ export function AppointmentModal({ open, onOpenChange }: AppointmentModalProps) 
         throw new Error('Failed to submit booking')
       }
 
+      setConfirmationDetails({
+        doctorName: doctors.find((d) => d.id === selectedDoctor)?.name ?? selectedDoctor,
+        date: format(selectedDate, 'MMMM d, yyyy'),
+        time: selectedTime,
+      })
       setStep(5)
       setFormData({ firstName: '', lastName: '', email: '', phone: '' })
       setSelectedService(null)
@@ -599,44 +610,42 @@ export function AppointmentModal({ open, onOpenChange }: AppointmentModalProps) 
 
         {/* Step 5: Success */}
         {step === 5 && (
-          <div className="p-8 text-center">
-            <div className="size-16 rounded-full bg-primary/10 flex items-center justify-center mx-auto mb-6">
-              <Check className="size-8 text-primary" />
-            </div>
-            <h2 className="text-2xl font-semibold mb-2">Booking Confirmed</h2>
-            <p className="text-muted-foreground mb-6">
-              Your appointment has been scheduled. We have sent a confirmation 
-              to {formData.email}.
-            </p>
-            <div className="p-4 rounded-xl bg-muted/50 border border-border mb-6 text-left max-w-sm mx-auto">
-              <div className="space-y-2 text-sm">
-                <div className="flex justify-between">
-                  <span className="text-muted-foreground">Service:</span>
-                  <span className="font-medium">
-                    {services.find((s) => s.id === selectedService)?.name}
-                  </span>
-                </div>
-                <div className="flex justify-between">
-                  <span className="text-muted-foreground">Doctor:</span>
-                  <span className="font-medium">
-                    {doctors.find((d) => d.id === selectedDoctor)?.name}
-                  </span>
-                </div>
-                <div className="flex justify-between">
-                  <span className="text-muted-foreground">Date:</span>
-                  <span className="font-medium">
-                    {selectedDate && format(selectedDate, 'MMMM d, yyyy')}
-                  </span>
-                </div>
-                <div className="flex justify-between">
-                  <span className="text-muted-foreground">Time:</span>
-                  <span className="font-medium">{selectedTime}</span>
+          <div className="flex items-center justify-center px-6 py-10 sm:px-10">
+            <div className="w-full max-w-md rounded-2xl border border-border/70 bg-background p-8 text-center shadow-sm">
+              <div className="mx-auto mb-5 flex size-16 items-center justify-center rounded-full bg-primary/10">
+                <Check className="size-8 text-primary" />
+              </div>
+
+              <h2 className="mb-2 text-2xl font-semibold tracking-tight">Appointment Confirmed ✅</h2>
+              <p className="mb-6 text-muted-foreground">
+                Your appointment has been successfully booked.
+              </p>
+
+              <div className="mx-auto mb-4 w-full max-w-sm rounded-xl border border-border bg-muted/30 p-4 text-left">
+                <div className="space-y-2 text-sm">
+                  <div className="flex justify-between gap-4">
+                    <span className="text-muted-foreground">Doctor Name</span>
+                    <span className="font-medium text-right">{confirmationDetails?.doctorName ?? '-'}</span>
+                  </div>
+                  <div className="flex justify-between gap-4">
+                    <span className="text-muted-foreground">Date</span>
+                    <span className="font-medium text-right">{confirmationDetails?.date ?? '-'}</span>
+                  </div>
+                  <div className="flex justify-between gap-4">
+                    <span className="text-muted-foreground">Time</span>
+                    <span className="font-medium text-right">{confirmationDetails?.time ?? '-'}</span>
+                  </div>
                 </div>
               </div>
+
+              <p className="mb-6 text-xs text-muted-foreground">
+                A confirmation email has been sent.
+              </p>
+
+              <Button onClick={resetForm} className="rounded-full px-8">
+                Book Another Appointment
+              </Button>
             </div>
-            <Button onClick={handleClose} className="rounded-full px-8">
-              Done
-            </Button>
           </div>
         )}
       </DialogContent>
