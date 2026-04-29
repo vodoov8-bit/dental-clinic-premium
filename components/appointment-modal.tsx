@@ -25,6 +25,12 @@ const services = [
   { id: 'emergency', name: 'Emergency Visit', duration: '30 min' },
 ]
 
+const doctors = [
+  { id: 'dr-ahmed-khan', name: 'Dr. Ahmed Khan' },
+  { id: 'dr-sarah-malik', name: 'Dr. Sarah Malik' },
+  { id: 'dr-ali-raza', name: 'Dr. Ali Raza' },
+]
+
 const timeSlots = [
   '9:00 AM', '9:30 AM', '10:00 AM', '10:30 AM', '11:00 AM', '11:30 AM',
   '2:00 PM', '2:30 PM', '3:00 PM', '3:30 PM', '4:00 PM', '4:30 PM',
@@ -89,6 +95,7 @@ interface AppointmentModalProps {
 export function AppointmentModal({ open, onOpenChange }: AppointmentModalProps) {
   const [step, setStep] = useState(1)
   const [selectedService, setSelectedService] = useState<string | null>(null)
+  const [selectedDoctor, setSelectedDoctor] = useState<string | null>(null)
   const [selectedDate, setSelectedDate] = useState<Date | undefined>(undefined)
   const [selectedTime, setSelectedTime] = useState<string | null>(null)
   const [bookedSlots, setBookedSlots] = useState<string[]>([])
@@ -103,6 +110,7 @@ export function AppointmentModal({ open, onOpenChange }: AppointmentModalProps) 
   const resetForm = () => {
     setStep(1)
     setSelectedService(null)
+    setSelectedDoctor(null)
     setSelectedDate(undefined)
     setSelectedTime(null)
     setFormData({ firstName: '', lastName: '', email: '', phone: '' })
@@ -123,7 +131,7 @@ export function AppointmentModal({ open, onOpenChange }: AppointmentModalProps) 
   }
 
   const handleSubmit = async () => {
-    if (!selectedService || !selectedDate || !selectedTime) return
+    if (!selectedService || !selectedDoctor || !selectedDate || !selectedTime) return
 
     setSubmitError(null)
 
@@ -147,13 +155,14 @@ export function AppointmentModal({ open, onOpenChange }: AppointmentModalProps) 
           'Content-Type': 'application/json',
         },
         body: JSON.stringify({
-          serviceName: services.find((s) => s.id === selectedService)?.name ?? selectedService,
-          date: format(selectedDate, 'yyyy-MM-dd'),
-          time: normalizeTimeTo24Hour(selectedTime),
           firstName: formData.firstName,
           lastName: formData.lastName,
           email: formData.email,
           phone: formData.phone,
+          serviceName: services.find((s) => s.id === selectedService)?.name ?? selectedService,
+          doctorName: doctors.find((d) => d.id === selectedDoctor)?.name ?? selectedDoctor,
+          date: format(selectedDate, 'yyyy-MM-dd'),
+          time: normalizeTimeTo24Hour(selectedTime),
         }),
       })
 
@@ -177,9 +186,10 @@ export function AppointmentModal({ open, onOpenChange }: AppointmentModalProps) 
         throw new Error('Failed to submit booking')
       }
 
-      setStep(4)
+      setStep(5)
       setFormData({ firstName: '', lastName: '', email: '', phone: '' })
       setSelectedService(null)
+      setSelectedDoctor(null)
       setSelectedDate(undefined)
       setSelectedTime(null)
     } catch {
@@ -204,11 +214,11 @@ export function AppointmentModal({ open, onOpenChange }: AppointmentModalProps) 
 
   const handleContinueFromDateTime = useCallback(() => {
     if (!selectedDate || !selectedTime) return
-    setStep(3)
+    setStep(4)
   }, [selectedDate, selectedTime])
 
   useEffect(() => {
-    if (!open || step !== 2) return
+    if (!open || step !== 3) return
 
     let isCancelled = false
 
@@ -258,16 +268,17 @@ export function AppointmentModal({ open, onOpenChange }: AppointmentModalProps) 
   }, [selectedSlotIsBooked])
 
   const canProceedStep1 = selectedService !== null
-  const canProceedStep2 = Boolean(selectedDate && selectedTime && !selectedSlotIsBooked)
-  const canProceedStep3 = formData.firstName && formData.lastName && formData.email && formData.phone
+  const canProceedStep2 = selectedDoctor !== null
+  const canProceedStep3 = Boolean(selectedDate && selectedTime && !selectedSlotIsBooked)
+  const canProceedStep4 = formData.firstName && formData.lastName && formData.email && formData.phone
 
   return (
     <Dialog open={open} onOpenChange={handleDialogOpenChange}>
       <DialogContent className="w-[calc(100vw-1rem)] max-w-[600px] p-0 overflow-hidden max-h-[90vh] flex flex-col sm:w-full">
         {/* Progress Bar */}
-        {step < 4 && (
+        {step < 5 && (
           <div className="flex gap-1 p-4 pb-0">
-            {[1, 2, 3].map((s) => (
+            {[1, 2, 3, 4].map((s) => (
               <div
                 key={s}
                 className={cn(
@@ -334,8 +345,65 @@ export function AppointmentModal({ open, onOpenChange }: AppointmentModalProps) 
           </div>
         )}
 
-        {/* Step 2: Select Date & Time */}
+        {/* Step 2: Select Doctor */}
         {step === 2 && (
+          <div className="flex min-h-0 flex-1 flex-col overflow-x-hidden">
+            <DialogHeader className="px-4 pt-6 sm:px-6 mb-6">
+              <DialogTitle className="text-2xl">Select a Doctor</DialogTitle>
+              <DialogDescription>
+                Choose your preferred doctor
+              </DialogDescription>
+            </DialogHeader>
+            <div className="flex-1 space-y-3 overflow-y-auto overflow-x-hidden px-4 sm:px-6">
+              {doctors.map((doctor) => (
+                <button
+                  key={doctor.id}
+                  onClick={() => setSelectedDoctor(doctor.id)}
+                  className={cn(
+                    'w-full p-4 rounded-xl border text-left transition-all',
+                    selectedDoctor === doctor.id
+                      ? 'border-primary bg-primary/5 ring-2 ring-primary/20'
+                      : 'border-border hover:border-primary/30 hover:bg-muted/30'
+                  )}
+                >
+                  <div className="flex items-center justify-between">
+                    <div>
+                      <p className="font-medium">{doctor.name}</p>
+                    </div>
+                    <div className="text-right">
+                      {selectedDoctor === doctor.id && (
+                        <div className="size-5 rounded-full bg-primary flex items-center justify-center mt-1 ml-auto">
+                          <Check className="size-3 text-primary-foreground" />
+                        </div>
+                      )}
+                    </div>
+                  </div>
+                </button>
+              ))}
+            </div>
+            <div className="sticky bottom-0 mt-4 flex justify-between border-t bg-background px-4 py-4 sm:px-6">
+              <Button
+                variant="ghost"
+                onClick={() => setStep(1)}
+                className="rounded-full"
+              >
+                <ChevronLeft className="mr-2 size-4" />
+                Back
+              </Button>
+              <Button
+                onClick={() => setStep(3)}
+                disabled={!canProceedStep2}
+                className="rounded-full px-6"
+              >
+                Continue
+                <ChevronRight className="ml-2 size-4" />
+              </Button>
+            </div>
+          </div>
+        )}
+
+        {/* Step 3: Select Date & Time */}
+        {step === 3 && (
           <div className="flex min-h-0 flex-1 flex-col overflow-x-hidden">
             <DialogHeader className="px-4 pt-6 sm:px-6 mb-6">
               <DialogTitle className="text-2xl">Choose Date & Time</DialogTitle>
@@ -406,7 +474,7 @@ export function AppointmentModal({ open, onOpenChange }: AppointmentModalProps) 
             <div className="sticky bottom-0 mt-4 flex justify-between border-t bg-background px-4 py-4 sm:px-6">
               <Button
                 variant="ghost"
-                onClick={() => setStep(1)}
+                onClick={() => setStep(2)}
                 className="rounded-full"
               >
                 <ChevronLeft className="mr-2 size-4" />
@@ -414,7 +482,7 @@ export function AppointmentModal({ open, onOpenChange }: AppointmentModalProps) 
               </Button>
               <Button
                 onClick={handleContinueFromDateTime}
-                disabled={!canProceedStep2}
+                disabled={!canProceedStep3}
                 className="rounded-full px-6"
               >
                 Continue
@@ -424,8 +492,8 @@ export function AppointmentModal({ open, onOpenChange }: AppointmentModalProps) 
           </div>
         )}
 
-        {/* Step 3: Contact Information */}
-        {step === 3 && (
+        {/* Step 4: Contact Information */}
+        {step === 4 && (
           <div className="flex min-h-0 flex-1 flex-col overflow-x-hidden">
             <DialogHeader className="px-4 pt-6 sm:px-6 mb-6">
               <DialogTitle className="text-2xl">Your Information</DialogTitle>
@@ -486,6 +554,12 @@ export function AppointmentModal({ open, onOpenChange }: AppointmentModalProps) 
                     </span>
                   </div>
                   <div className="flex justify-between">
+                    <span className="text-muted-foreground">Doctor:</span>
+                    <span className="font-medium">
+                      {doctors.find((d) => d.id === selectedDoctor)?.name}
+                    </span>
+                  </div>
+                  <div className="flex justify-between">
                     <span className="text-muted-foreground">Date:</span>
                     <span className="font-medium">
                       {selectedDate && format(selectedDate, 'MMMM d, yyyy')}
@@ -506,7 +580,7 @@ export function AppointmentModal({ open, onOpenChange }: AppointmentModalProps) 
             <div className="sticky bottom-0 mt-4 flex justify-between border-t bg-background px-4 py-4 sm:px-6">
               <Button
                 variant="ghost"
-                onClick={() => setStep(2)}
+                onClick={() => setStep(3)}
                 className="rounded-full"
               >
                 <ChevronLeft className="mr-2 size-4" />
@@ -514,7 +588,7 @@ export function AppointmentModal({ open, onOpenChange }: AppointmentModalProps) 
               </Button>
               <Button
                 onClick={handleSubmit}
-                disabled={!canProceedStep3}
+                disabled={!canProceedStep4}
                 className="rounded-full px-6"
               >
                 Confirm Booking
@@ -523,8 +597,8 @@ export function AppointmentModal({ open, onOpenChange }: AppointmentModalProps) 
           </div>
         )}
 
-        {/* Step 4: Success */}
-        {step === 4 && (
+        {/* Step 5: Success */}
+        {step === 5 && (
           <div className="p-8 text-center">
             <div className="size-16 rounded-full bg-primary/10 flex items-center justify-center mx-auto mb-6">
               <Check className="size-8 text-primary" />
@@ -540,6 +614,12 @@ export function AppointmentModal({ open, onOpenChange }: AppointmentModalProps) 
                   <span className="text-muted-foreground">Service:</span>
                   <span className="font-medium">
                     {services.find((s) => s.id === selectedService)?.name}
+                  </span>
+                </div>
+                <div className="flex justify-between">
+                  <span className="text-muted-foreground">Doctor:</span>
+                  <span className="font-medium">
+                    {doctors.find((d) => d.id === selectedDoctor)?.name}
                   </span>
                 </div>
                 <div className="flex justify-between">
