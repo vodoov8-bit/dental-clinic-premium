@@ -26,9 +26,9 @@ const services = [
 ]
 
 const doctors = [
-  { id: 'dr-ahmed-khan', name: 'Dr. Ahmed Khan' },
-  { id: 'dr-sarah-malik', name: 'Dr. Sarah Malik' },
-  { id: 'dr-ali-raza', name: 'Dr. Ali Raza' },
+  { id: 'dr-ahmed-khan', name: 'Dr. Ahmed Khan', specialty: 'General Dentist' },
+  { id: 'dr-sarah-malik', name: 'Dr. Sarah Malik', specialty: 'Orthodontist' },
+  { id: 'dr-ali-raza', name: 'Dr. Ali Raza', specialty: 'Cosmetic Dentist' },
 ]
 
 const timeSlots = [
@@ -380,6 +380,7 @@ export function AppointmentModal({ open, onOpenChange }: AppointmentModalProps) 
                   <div className="flex items-center justify-between">
                     <div>
                       <p className="font-medium">{doctor.name}</p>
+                      <p className="mt-1 text-xs text-muted-foreground">{doctor.specialty}</p>
                     </div>
                     <div className="text-right">
                       {selectedDoctor === doctor.id && (
