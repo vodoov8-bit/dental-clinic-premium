@@ -1,7 +1,7 @@
 'use client'
 
 import { useCallback, useEffect, useMemo, useState } from 'react'
-import { format } from 'date-fns'
+import { format, startOfDay } from 'date-fns'
 import { CalendarIcon, Clock, ChevronRight, ChevronLeft, Check } from 'lucide-react'
 import {
   Dialog,
@@ -97,6 +97,10 @@ interface AppointmentModalProps {
 }
 
 export function AppointmentModal({ open, onOpenChange }: AppointmentModalProps) {
+  const [visibleMonth, setVisibleMonth] = useState<Date>(() => {
+    const today = new Date()
+    return new Date(today.getFullYear(), today.getMonth(), 1)
+  })
   const [step, setStep] = useState(1)
   const [selectedService, setSelectedService] = useState<string | null>(null)
   const [selectedDoctor, setSelectedDoctor] = useState<string | null>(null)
@@ -118,6 +122,8 @@ export function AppointmentModal({ open, onOpenChange }: AppointmentModalProps) 
   })
 
   const resetForm = () => {
+    const today = new Date()
+    setVisibleMonth(new Date(today.getFullYear(), today.getMonth(), 1))
     setStep(1)
     setSelectedService(null)
     setSelectedDoctor(null)
@@ -443,7 +449,19 @@ export function AppointmentModal({ open, onOpenChange }: AppointmentModalProps) 
                   mode="single"
                   selected={selectedDate}
                   onSelect={setSelectedDate}
-                  disabled={(date) => date < new Date() || date.getDay() === 0}
+                  showOutsideDays={false}
+                  month={visibleMonth}
+                  onMonthChange={setVisibleMonth}
+                  disabled={(date) => {
+                    const today = startOfDay(new Date())
+                    const isPastDate = startOfDay(date) < today
+                    const isSunday = date.getDay() === 0
+                    const isOutsideVisibleMonth =
+                      date.getFullYear() !== visibleMonth.getFullYear() ||
+                      date.getMonth() !== visibleMonth.getMonth()
+
+                    return isPastDate || isSunday || isOutsideVisibleMonth
+                  }}
                   className="w-full p-0"
                   classNames={{ root: 'w-full' }}
                 />
