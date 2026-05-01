@@ -242,6 +242,13 @@ export function AppointmentModal({ open, onOpenChange }: AppointmentModalProps) 
     [bookedSlotsSet, selectedDate, selectedDoctorName]
   )
 
+  const handleSelectDate = useCallback((date: Date | undefined) => {
+    const normalizedDate = date ? startOfDay(date) : undefined
+    setSelectedDate(normalizedDate)
+    // Date change invalidates previously selected time slot.
+    setSelectedTime(null)
+  }, [])
+
   const handleContinueFromDateTime = useCallback(() => {
     if (!selectedDate || !selectedTime) return
     setStep(4)
@@ -304,7 +311,7 @@ export function AppointmentModal({ open, onOpenChange }: AppointmentModalProps) 
 
   return (
     <Dialog open={open} onOpenChange={handleDialogOpenChange}>
-      <DialogContent className="w-[calc(100vw-1rem)] max-w-[600px] p-0 overflow-hidden sm:w-full">
+      <DialogContent className="w-[calc(100vw-1rem)] max-w-[600px] p-0 overflow-hidden sm:w-full max-h-[90dvh] flex flex-col">
         {/* Progress Bar */}
         {step < 5 && (
           <div className="flex gap-1 p-4 pb-0">
@@ -435,21 +442,21 @@ export function AppointmentModal({ open, onOpenChange }: AppointmentModalProps) 
 
         {/* Step 3: Select Date & Time */}
         {step === 3 && (
-          <div>
+          <div className="flex min-h-0 flex-1 flex-col">
             <DialogHeader className="px-4 pt-6 sm:px-6 mb-6">
               <DialogTitle className="text-2xl">Choose Date & Time</DialogTitle>
               <DialogDescription>
                 Select your preferred appointment slot
               </DialogDescription>
             </DialogHeader>
-            <div className="px-4 sm:px-6">
+            <div className="min-h-0 flex-1 overflow-y-auto px-4 pb-4 sm:px-6">
               <div className="grid grid-cols-1 gap-6 md:grid-cols-2 min-w-0">
               {/* Calendar */}
               <div className="border rounded-xl p-3 min-w-0 overflow-x-auto">
                 <Calendar
                   mode="single"
                   selected={selectedDate}
-                  onSelect={setSelectedDate}
+                  onSelect={handleSelectDate}
                   showOutsideDays={false}
                   month={visibleMonth}
                   onMonthChange={setVisibleMonth}
@@ -490,10 +497,6 @@ export function AppointmentModal({ open, onOpenChange }: AppointmentModalProps) 
                         <button
                           key={time}
                           type="button"
-                          onPointerUp={() => {
-                            if (isBooked) return
-                            handleSelectTimeSlot(time)
-                          }}
                           onClick={() => {
                             if (isBooked) return
                             handleSelectTimeSlot(time)
@@ -516,7 +519,7 @@ export function AppointmentModal({ open, onOpenChange }: AppointmentModalProps) 
               </div>
             </div>
             </div>
-            <div className="mt-4 flex justify-between border-t bg-background px-4 py-4 sm:px-6">
+            <div className="sticky bottom-0 z-10 mt-4 flex justify-between border-t bg-background px-4 py-4 pb-[calc(env(safe-area-inset-bottom)+1rem)] sm:px-6">
               <Button
                 variant="ghost"
                 onClick={() => setStep(2)}
