@@ -311,7 +311,7 @@ export function AppointmentModal({ open, onOpenChange }: AppointmentModalProps) 
 
   return (
     <Dialog open={open} onOpenChange={handleDialogOpenChange}>
-      <DialogContent className="w-[calc(100vw-1rem)] max-w-[600px] p-0 overflow-hidden sm:w-full max-h-[90dvh] flex flex-col">
+      <DialogContent className="w-[calc(100vw-1rem)] max-w-[600px] p-0 overflow-hidden sm:w-full max-h-[90vh] flex flex-col">
         {/* Progress Bar */}
         {step < 5 && (
           <div className="flex gap-1 p-4 pb-0">
@@ -329,14 +329,14 @@ export function AppointmentModal({ open, onOpenChange }: AppointmentModalProps) 
 
         {/* Step 1: Select Service */}
         {step === 1 && (
-          <div>
+          <div className="flex min-h-0 flex-1 flex-col">
             <DialogHeader className="px-4 pt-6 sm:px-6 mb-6">
               <DialogTitle className="text-2xl">Select a Service</DialogTitle>
               <DialogDescription>
                 Choose the service you would like to book
               </DialogDescription>
             </DialogHeader>
-            <div className="space-y-3 px-4 sm:px-6">
+            <div className="min-h-0 flex-1 overflow-y-auto space-y-3 px-4 pb-4 sm:px-6">
               {services.map((service) => (
                 <button
                   key={service.id}
@@ -369,7 +369,7 @@ export function AppointmentModal({ open, onOpenChange }: AppointmentModalProps) 
                 </button>
               ))}
             </div>
-            <div className="mt-4 flex justify-end border-t bg-background px-4 py-4 sm:px-6">
+            <div className="sticky bottom-0 z-10 mt-4 flex justify-end border-t bg-background px-4 py-4 pb-[calc(env(safe-area-inset-bottom)+1rem)] sm:px-6">
               <Button
                 onClick={() => setStep(2)}
                 disabled={!canProceedStep1}
@@ -384,14 +384,14 @@ export function AppointmentModal({ open, onOpenChange }: AppointmentModalProps) 
 
         {/* Step 2: Select Doctor */}
         {step === 2 && (
-          <div>
+          <div className="flex min-h-0 flex-1 flex-col">
             <DialogHeader className="px-4 pt-6 sm:px-6 mb-6">
               <DialogTitle className="text-2xl">Select a Doctor</DialogTitle>
               <DialogDescription>
                 Choose your preferred doctor
               </DialogDescription>
             </DialogHeader>
-            <div className="space-y-3 px-4 sm:px-6">
+            <div className="min-h-0 flex-1 overflow-y-auto space-y-3 px-4 pb-4 sm:px-6">
               {doctors.map((doctor) => (
                 <button
                   key={doctor.id}
@@ -419,7 +419,7 @@ export function AppointmentModal({ open, onOpenChange }: AppointmentModalProps) 
                 </button>
               ))}
             </div>
-            <div className="mt-4 flex justify-between border-t bg-background px-4 py-4 sm:px-6">
+            <div className="sticky bottom-0 z-10 mt-4 flex justify-between border-t bg-background px-4 py-4 pb-[calc(env(safe-area-inset-bottom)+1rem)] sm:px-6">
               <Button
                 variant="ghost"
                 onClick={() => setStep(1)}
@@ -542,14 +542,14 @@ export function AppointmentModal({ open, onOpenChange }: AppointmentModalProps) 
 
         {/* Step 4: Contact Information */}
         {step === 4 && (
-          <div>
+          <div className="flex min-h-0 flex-1 flex-col">
             <DialogHeader className="px-4 pt-6 sm:px-6 mb-6">
               <DialogTitle className="text-2xl">Your Information</DialogTitle>
               <DialogDescription>
                 Please provide your contact details
               </DialogDescription>
             </DialogHeader>
-            <div className="space-y-4 px-4 sm:px-6">
+            <div className="min-h-0 flex-1 overflow-y-auto space-y-4 px-4 pb-4 sm:px-6">
               <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
                 <div className="space-y-2">
                   <Label htmlFor="firstName">First Name</Label>
@@ -625,7 +625,7 @@ export function AppointmentModal({ open, onOpenChange }: AppointmentModalProps) 
                 <p className="text-sm text-destructive">{submitError}</p>
               </div>
             )}
-            <div className="mt-4 flex justify-between border-t bg-background px-4 py-4 sm:px-6">
+            <div className="sticky bottom-0 z-10 mt-4 flex justify-between border-t bg-background px-4 py-4 pb-[calc(env(safe-area-inset-bottom)+1rem)] sm:px-6">
               <Button
                 variant="ghost"
                 onClick={() => setStep(3)}
